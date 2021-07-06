@@ -27,58 +27,6 @@ import org.junit.runner.RunWith;
 public class PlaybackTests extends TestBase {
 
   public static final String TAG = "playbackTest";
-  static final String secondVideoToPlayUrl = "http://localhost:5000/hls/google_glass/playlist.m3u8";
-
-  @Test
-  public void testVideoChange() {
-    testVideoChange(false, true);
-  }
-
-  @Test
-  public void testProgramChange() {
-    testVideoChange(true, false);
-  }
-
-  public void testVideoChange(boolean programChange, boolean videoChange) {
-    try {
-      if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
-        fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
-      }
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
-      // Video started, do video change, we expect to see fake rebufferstart
-      testActivity.runOnUiThread(new Runnable() {
-        public void run() {
-          testActivity.setUrlToPlay(secondVideoToPlayUrl);
-          CustomerVideoData customerVideoData = new CustomerVideoData();
-          customerVideoData.setVideoTitle(BuildConfig.FLAVOR + "-" + currentTestName.getMethodName()
-              + "_title_2");
-          MuxStatsExoPlayer muxStats = testActivity.getMuxStats();
-          if (videoChange) {
-            muxStats.videoChange(customerVideoData);
-          }
-          if (programChange) {
-            muxStats.programChange(customerVideoData);
-          }
-          testActivity.startPlayback();
-        }
-      });
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
-      int rebufferStartEventIndex = 0;
-      int rebufferEndEventIndex;
-      while ((rebufferStartEventIndex = networkRequest.getIndexForNextEvent(
-          rebufferStartEventIndex, RebufferStartEvent.TYPE)) != -1) {
-        rebufferEndEventIndex = networkRequest.getIndexForNextEvent(rebufferStartEventIndex,
-            RebufferEndEvent.TYPE);
-        if (rebufferEndEventIndex == -1) {
-          fail("We have rebuffer start event at position: " + rebufferStartEventIndex
-              + ",without matching rebuffer end event, events: "
-              + networkRequest.getReceivedEventNames());
-        }
-      }
-    } catch (Exception e) {
-      fail(getExceptionFullTraceAndMessage(e));
-    }
-  }
 
   @Test
   public void testEndEvents() {

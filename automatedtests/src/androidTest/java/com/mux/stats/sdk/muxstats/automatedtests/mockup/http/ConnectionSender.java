@@ -28,6 +28,7 @@ public class ConnectionSender extends Thread {
   long networkJammingEndPeriod = -1;
   int networkJamFactor = 1;
   boolean constantJam = false;
+  private boolean  returnForbiddenOnAllRequests = false;
   Random r = new Random();
 
   long assetFileSize;
@@ -69,6 +70,10 @@ public class ConnectionSender extends Thread {
 
   public void setNetworkDelay(long delay) {
     networkRequestDelay = delay;
+  }
+
+  public void returnForbiddenOnEveryRequest(boolean isOn) {
+    returnForbiddenOnAllRequests = isOn;
   }
 
   public void kill() {
@@ -135,6 +140,10 @@ public class ConnectionSender extends Thread {
     segmentStat.setSegmentLengthInBytes(assetInput.available() - serveDataFromPosition);
     Log.i(TAG, "Serving file from position: " + serveDataFromPosition + ", remaining bytes: " +
         assetInput.available() + ", total file size: " + assetFileSize);
+    if (returnForbiddenOnAllRequests) {
+      sendRequestedForbidden();
+      return;
+    }
     if (serveDataFromPosition < assetFileSize) {
       if (sendPartialResponse) {
         sendHTTPOKPartialResponse(contentType, acceptRangeHeader);
@@ -211,6 +220,28 @@ public class ConnectionSender extends Thread {
     String response = "HTTP/1.1 416 Requested range not satisfiable\r\n" +
         "Server: SimpleHttpServer/1.0\r\n" +
         "Content-Range: bytes */" + assetFileSize + "\r\n" +
+        "Content-Type: text/plain\r\n" +
+        "Content-Length: 0\r\n" +
+        SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +
+        SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER + ": " + networkRequestDelay + "\r\n" +
+        getAdditionalHeadersAsString() +
+        "Connection: close\r\n" +
+        "\r\n";
+    Log.i(TAG, "Sending response: \n" + response);
+    writer.write(response);
+    writer.flush();
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
+    listener.segmentServed(requestUuid, segmentStat);
+  }
+
+  /*
+   * Send HTTP response 403 Forrbiden
+   */
+  private void sendRequestedForbidden() throws IOException {
+    PrintWriter writer = new PrintWriter(new OutputStreamWriter(
+        httpOut, StandardCharsets.US_ASCII), true);
+    String response = "HTTP/1.1 403 Forbidden\r\n" +
+        "Server: SimpleHttpServer/1.0\r\n" +
         "Content-Type: text/plain\r\n" +
         "Content-Length: 0\r\n" +
         SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +

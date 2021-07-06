@@ -15,6 +15,7 @@ public class ConnectionWorker extends Thread implements ConnectionListener {
   private long networkJamEndPeriod = -1;
   private int networkJamFactor = 1;
   private boolean constantJam = false;
+  private boolean returnForbiddenOnAllRequests = false;
   private long networkRequestDelay = 0;
   int seekLatency;
   ConnectionListener listener;
@@ -40,6 +41,13 @@ public class ConnectionWorker extends Thread implements ConnectionListener {
     sender.jamNetwork(jamPeriod, jamFactor, constantJam);
   }
 
+  public void returnForbiddenOnEveryRequest(boolean isOn) {
+    returnForbiddenOnAllRequests = isOn;
+    if (sender != null) {
+      sender.returnForbiddenOnEveryRequest(isOn);
+    }
+  }
+
   public void setNetworkDelay(long delay) {
     networkRequestDelay = delay;
     if (sender != null) {
@@ -55,6 +63,7 @@ public class ConnectionWorker extends Thread implements ConnectionListener {
       sender = new ConnectionSender(this, clientSocket.getOutputStream(), bandwidthLimit,
           networkJamEndPeriod, networkJamFactor, seekLatency, networkRequestDelay,
           additionalHeaders);
+      sender.returnForbiddenOnEveryRequest(returnForbiddenOnAllRequests);
       sender.pause();
     } catch (IOException e) {
       e.printStackTrace();

@@ -26,6 +26,7 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
   private int networkJamFactor = 1;
   private int seekLatency;
   private boolean constantJam = false;
+  private boolean returnForbiddenOnAllRequests = false;
   private long manifestDelay = 0;
   HashMap<String, String> additionalHeaders = new HashMap<>();
   HashMap<String, SegmentStatistics> segmentsServed = new HashMap<>();
@@ -66,6 +67,13 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
    */
   public void setSeekLatency(int latency) {
     seekLatency = latency;
+  }
+
+  public void returnForbiddenOnEveryRequest(boolean isOn) {
+    returnForbiddenOnAllRequests = isOn;
+    for (ConnectionWorker worker : workers) {
+      worker.returnForbiddenOnEveryRequest(isOn);
+    }
   }
 
   public SegmentStatistics getSegmentStatistics(String segmentUuid) {
@@ -134,9 +142,11 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
    */
   private void acceptConnection() throws IOException {
     Socket clientSocket = server.accept();
-    workers.add(new ConnectionWorker(this, clientSocket, bandwidthLimit,
+    ConnectionWorker woeker = new ConnectionWorker(this, clientSocket, bandwidthLimit,
         networkJamEndPeriod, networkJamFactor, constantJam, seekLatency, manifestDelay,
-        additionalHeaders));
+        additionalHeaders);
+    woeker.returnForbiddenOnEveryRequest(returnForbiddenOnAllRequests);
+    workers.add(woeker);
   }
 
   @Override
