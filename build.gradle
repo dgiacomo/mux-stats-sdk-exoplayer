@@ -22,10 +22,13 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
         classpath 'com.novoda:bintray-release:0.9.1'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
     }
 }
 
 allprojects {
+    apply plugin: "com.jfrog.artifactory"
+    apply plugin: 'maven-publish'
     repositories {
         google()
         jcenter()
@@ -44,5 +47,25 @@ allprojects {
         releaseGroupId = 'com.google.android.exoplayer'
         releaseVersion = 'r2.1.1'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
+    }
+}
+
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        repository {
+            repoKey = 'mux-stats-sdk-gradle-dev-local'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'mux-stats-sdk-gradle-dev'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
     }
 }
