@@ -1,5 +1,7 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static org.junit.Assert.fail;
 
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
@@ -22,7 +24,7 @@ public class RunInBackgroundTests extends TestBase {
       testActivity.waitForActivityToInitialize();
       backgroundActivity();
       testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS);
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       int playingEventIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
       if (playingEventIndex == -1) {
         fail("Playing event missing ! Received : " + networkRequest.getReceivedEventNames());

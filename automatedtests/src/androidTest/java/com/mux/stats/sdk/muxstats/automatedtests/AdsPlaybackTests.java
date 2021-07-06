@@ -1,6 +1,8 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static org.junit.Assert.fail;
 
 import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
@@ -52,7 +54,7 @@ public class AdsPlaybackTests extends TestBase {
     try {
       setupPrerolAndBumper(false, "http://localhost:5000/ten_sec_ad_vast.xml");
       // Wait for ads to finish playing, wait for X seconds
-      Thread.sleep(PREROLL_AD_PERIOD);
+      onView(isRoot()).perform(waitFor(PREROLL_AD_PERIOD));
       // make sure that we have playerready, pause, adbreakstart, adplay, adpause !!!
       int playreadyIndex = networkRequest.getIndexForFirstEvent(PlayerReadyEvent.TYPE);
       int pauseIndex = networkRequest.getIndexForFirstEvent(PauseEvent.TYPE);
@@ -80,9 +82,9 @@ public class AdsPlaybackTests extends TestBase {
       // same as start play
       resumePlayer();
       // Wait for preroll to finish
-      Thread.sleep(PREROLL_AD_PERIOD);
+      onView(isRoot()).perform(waitFor(PREROLL_AD_PERIOD));
       // Play X seconds
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       adBreakstartIndex = networkRequest.getIndexForFirstEvent(AdBreakStartEvent.TYPE);
       adPlayIndex = networkRequest.getIndexForFirstEvent(AdPlayEvent.TYPE);
       int adPlayingIndex = networkRequest.getIndexForFirstEvent(AdPlayingEvent.TYPE);
@@ -138,13 +140,13 @@ public class AdsPlaybackTests extends TestBase {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
       // First ad is 10 second
-      Thread.sleep(PREROLL_AD_PERIOD / 2);
+      onView(isRoot()).perform(waitFor(PREROLL_AD_PERIOD / 2));
       // Pause the ad for 5 seconds
       pausePlayer();
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PAUSE_PERIOD_IN_MS));
       // resume the ad playback
       resumePlayer();
-      Thread.sleep(PREROLL_AD_PERIOD + BUMPER_AD_PERIOD * 2);
+      onView(isRoot()).perform(waitFor(PREROLL_AD_PERIOD + BUMPER_AD_PERIOD * 2));
 
       // Check ad start event
       int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);

@@ -2,6 +2,7 @@ package com.mux.stats.sdk.muxstats.automatedtests;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.fail;
@@ -9,6 +10,7 @@ import static org.junit.Assert.fail;
 import android.app.Activity;
 import android.view.MotionEvent;
 import android.view.View;
+import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.MotionEvents;
@@ -27,6 +29,7 @@ import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
+import com.mux.stats.sdk.muxstats.automatedtests.utils.PlaybackIdlingResource;
 import java.io.IOException;
 import java.util.Collection;
 import org.hamcrest.Matcher;
@@ -40,15 +43,21 @@ public abstract class TestBase {
 
   static final String TAG = "MuxStats";
 
-  @Rule
-  public ActivityTestRule<SimplePlayerTestActivity> activityRule =
-      new ActivityTestRule<>(SimplePlayerTestActivity.class);
-  // This does not work for r2.11.1 flavor
-//    public ActivityScenarioRule<SimplePlayerTestActivity> activityRule =
-//            new ActivityScenarioRule(new Intent(
-//                    ApplicationProvider.getApplicationContext(),
-//                    SimplePlayerTestActivity.class).putExtras(getActivityOptions())
-//            );
+  public static ViewAction waitFor(long delay) {
+    return new ViewAction() {
+      @Override public Matcher<View> getConstraints() {
+        return isRoot();
+      }
+
+      @Override public String getDescription() {
+        return "wait for " + delay + "milliseconds";
+      }
+
+      @Override public void perform(UiController uiController, View view) {
+        uiController.loopMainThreadForAtLeast(delay);
+      }
+    };
+  }
 
   @Rule
   public TestName currentTestName = new TestName();
@@ -87,6 +96,7 @@ public abstract class TestBase {
   protected PlayerControlView controlView;
   protected View pauseButton;
   protected View playButton;
+  protected PlaybackIdlingResource idlingResource = new PlaybackIdlingResource();
 
 
   @Before
@@ -108,6 +118,7 @@ public abstract class TestBase {
       fail("Test activity not found !!!");
     }
     testActivityFinished = false;
+    IdlingRegistry.getInstance().register(idlingResource);
     testActivity.runOnUiThread(() -> {
       testActivity.setVideoTitle(BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
       testActivity.setUrlToPlay(urlToPlay);
@@ -118,8 +129,8 @@ public abstract class TestBase {
       pView = testActivity.getPlayerView();
       testMediaSource = testActivity.getTestMediaSource();
       networkRequest = testActivity.getMockNetwork();
+      testActivity.setIdlingListener(idlingResource);
     });
-//        testScenario = activityRule.getScenario();
   }
 
   @After

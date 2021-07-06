@@ -1,5 +1,7 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static org.junit.Assert.fail;
 
 import android.util.Log;
@@ -32,7 +34,7 @@ public class RenditionChangeTests extends AdaptiveBitStreamTestBase {
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       // Switch rendition
       int startingFmtIndex = getSelectedRenditionIndex();
       ArrayList<Format> availableFormats = getAvailableVideoRendition();
@@ -45,7 +47,7 @@ public class RenditionChangeTests extends AdaptiveBitStreamTestBase {
       }
       Format changedFmt = availableFormats.get(nextFmtIndex);
       switchRenditionToIndex(nextFmtIndex);
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       int renditionChangeIndex = 0;
       int playinIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
       JSONArray receivedRenditionChangeEvents = new JSONArray();

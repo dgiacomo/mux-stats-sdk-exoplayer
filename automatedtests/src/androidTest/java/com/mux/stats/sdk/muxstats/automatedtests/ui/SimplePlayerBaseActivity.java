@@ -37,6 +37,7 @@ import com.mux.stats.sdk.muxstats.MuxStatsHelper;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
+import com.mux.stats.sdk.muxstats.automatedtests.utils.PlaybackIdlingListener;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -80,6 +81,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   Condition activityClosed = activityLock.newCondition();
   Condition activityInitialized = activityLock.newCondition();
   ArrayList<String> addAllowedHeaders = new ArrayList<>();
+  PlaybackIdlingListener idlingListener;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -159,6 +161,10 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   public void releaseExoPlayer() {
     player.release();
     player = null;
+  }
+
+  public void setIdlingListener(PlaybackIdlingListener listener) {
+    idlingListener = listener;
   }
 
   public MuxStatsExoPlayer getMuxStats() {

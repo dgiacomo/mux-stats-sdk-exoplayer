@@ -1,5 +1,7 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static org.junit.Assert.fail;
 
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
@@ -79,12 +81,12 @@ public class MissusageTests extends TestBase {
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
-      Thread.sleep(INIT_MUX_STATS_AFTER);
+      onView(isRoot()).perform(waitFor(INIT_MUX_STATS_AFTER));
       // Init Mux stats after the playback have started
       testActivity.runOnUiThread(() -> {
         testActivity.initMuxSats();
       });
-      Thread.sleep(INIT_MUX_STATS_AFTER * 2);
+      onView(isRoot()).perform(waitFor(INIT_MUX_STATS_AFTER * 2));
       // This is initialized with the MuxStats, it need to be called after
       // testActivity.initMuxSats();
       networkRequest = testActivity.getMockNetwork();

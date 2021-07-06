@@ -1,5 +1,7 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static org.junit.Assert.fail;
 
 import android.util.Log;
@@ -44,7 +46,7 @@ public class PlaybackTests extends TestBase {
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       // Video started, do video change, we expect to see fake rebufferstart
       testActivity.runOnUiThread(new Runnable() {
         public void run() {
@@ -62,7 +64,7 @@ public class PlaybackTests extends TestBase {
           testActivity.startPlayback();
         }
       });
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PAUSE_PERIOD_IN_MS));
       int rebufferStartEventIndex = 0;
       int rebufferEndEventIndex;
       while ((rebufferStartEventIndex = networkRequest.getIndexForNextEvent(
@@ -97,7 +99,7 @@ public class PlaybackTests extends TestBase {
         fail("Playback did not finish in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
       testActivity.finishAffinity();
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PAUSE_PERIOD_IN_MS));
       int pauseIndex = networkRequest.getIndexForFirstEvent(PauseEvent.TYPE);
       int endedIndex = networkRequest.getIndexForFirstEvent(EndedEvent.TYPE);
       int viewEndEventIndex = networkRequest.getIndexForFirstEvent(ViewEndEvent.TYPE);
@@ -136,14 +138,14 @@ public class PlaybackTests extends TestBase {
       initPlayerControls();
 
       // play x seconds, stage 1
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       pausePlayer();
       // Pause x seconds, stage 2
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PAUSE_PERIOD_IN_MS));
       // Resume video, stage 3
       resumePlayer();
       // Play another x seconds
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
 
       // Seek backward, stage 4
       testActivity.runOnUiThread(new Runnable() {
@@ -154,7 +156,7 @@ public class PlaybackTests extends TestBase {
       });
 
       // Play another x seconds, stage 5
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
 
       // seek forward in the video, stage 6
       testActivity.runOnUiThread(new Runnable() {
@@ -169,7 +171,7 @@ public class PlaybackTests extends TestBase {
       });
 
       // Play another x seconds, stage 7
-      Thread.sleep(PLAY_PERIOD_IN_MS * 2);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS * 2));
 
       CheckupResult result;
 
@@ -213,7 +215,7 @@ public class PlaybackTests extends TestBase {
       long expectedStartupTime = System.currentTimeMillis() - testStartedAt;
 
       // play x seconds
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       jamNetwork();
       testActivity.waitForPlaybackToStartBuffering();
       long rebufferStartedAT = System.currentTimeMillis();
@@ -225,9 +227,7 @@ public class PlaybackTests extends TestBase {
 
       long measuredRebufferPeriod = System.currentTimeMillis() - rebufferStartedAT;
       // play x seconds
-      Thread.sleep(PLAY_PERIOD_IN_MS * 2);
-//            exitActivity();
-//            testScenario.close();
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS * 2));
 
       // Startup time check
       int viewstartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);

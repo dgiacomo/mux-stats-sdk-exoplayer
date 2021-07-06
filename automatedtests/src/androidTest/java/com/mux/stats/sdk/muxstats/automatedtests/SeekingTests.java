@@ -1,5 +1,7 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static org.junit.Assert.fail;
 
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
@@ -44,7 +46,7 @@ public class SeekingTests extends SeekingTestBase {
   public void testSeekWhilePlayWhenReadyIsFalse() {
     try {
       testActivity.waitForActivityToInitialize();
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
       int playingIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
       int seekingIndex = networkRequest.getIndexForFirstEvent(SeekingEvent.TYPE);
@@ -71,7 +73,7 @@ public class SeekingTests extends SeekingTestBase {
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PAUSE_PERIOD_IN_MS));
       int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
       int playingIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
       if (playIndex == -1 || playingIndex == -1) {

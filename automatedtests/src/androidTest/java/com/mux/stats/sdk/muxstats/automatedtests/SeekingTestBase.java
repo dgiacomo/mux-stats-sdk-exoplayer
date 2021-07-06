@@ -1,5 +1,7 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static org.junit.Assert.fail;
 
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
@@ -18,15 +20,15 @@ public class SeekingTestBase extends TestBase {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
       // play x seconds, stage 1
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       pausePlayer();
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PAUSE_PERIOD_IN_MS));
       // Seek to the end by triggering touch event
       testActivity.runOnUiThread(() -> {
         long duration = pView.getPlayer().getDuration();
         pView.getPlayer().seekTo(duration - PLAY_PERIOD_IN_MS);
       });
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       finishActivity();
       // Expected events play, playing, pause, seeking, seeked
       int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
@@ -72,13 +74,13 @@ public class SeekingTestBase extends TestBase {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
       // play x seconds, stage 1
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       // Seek to the end by triggering touch event
       testActivity.runOnUiThread(() -> {
         long duration = pView.getPlayer().getDuration();
         pView.getPlayer().seekTo(duration - PLAY_PERIOD_IN_MS);
       });
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      onView(isRoot()).perform(waitFor(PLAY_PERIOD_IN_MS));
       finishActivity();
       // Expected events play, playing, pause, seeking, seeked
       int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
