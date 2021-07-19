@@ -76,6 +76,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   Lock activityLock = new ReentrantLock();
   Condition playbackEnded = activityLock.newCondition();
   Condition playbackStarted = activityLock.newCondition();
+  Condition playbackError = activityLock.newCondition();
   Condition playbackBuffering = activityLock.newCondition();
   Condition activityClosed = activityLock.newCondition();
   Condition activityInitialized = activityLock.newCondition();
@@ -237,6 +238,18 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     }
   }
 
+  public boolean waitForPlaybackError(long timeoutInMs) {
+    try {
+      activityLock.lock();
+      return playbackError.await(timeoutInMs, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return false;
+    } finally {
+      activityLock.unlock();
+    }
+  }
+
   public void waitForPlaybackToStartBuffering() {
     if (!muxStats.isPaused()) {
       try {
@@ -357,6 +370,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   public void onPlayerError(ExoPlaybackException error) {
     Log.e(TAG, error.getMessage());
     error.printStackTrace();
+    activityLock.lock();
+    playbackError.signalAll();
+    activityLock.unlock();
   }
 
   @Override

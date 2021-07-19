@@ -28,7 +28,10 @@ public class VideoChangeTests extends TestBase {
       Thread.sleep(PLAY_PERIOD_IN_MS);
       httpServer.returnForbiddenOnEveryRequest(true);
       changeVideo(true, "http://localhost:5000/vod.mp4");
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      Thread.sleep(PAUSE_PERIOD_IN_MS * 100);
+      if(!testActivity.waitForPlaybackError(PLAY_PERIOD_IN_MS)) {
+        fail("Playback error did not opccure in " + PLAY_PERIOD_IN_MS + " milliseconds !!!");
+      }
       httpServer.returnForbiddenOnEveryRequest(false);
       changeVideo(true, "http://localhost:5000/vod.mp4");
       Thread.sleep(PLAY_PERIOD_IN_MS);
