@@ -1,5 +1,23 @@
 # Release notes
 
+## v2.4.14
+ - Support Exoplayer 2.14 (#134)
+
+## v2.4.13
+ - Add CustomerData class to Proguard (#131)
+
+## v2.4.12
+ - Add checkstyle task to gradle (#123)
+ - Replaced FrameRendererListener with VideoListener. (#127)
+ - Custom data update: deprecate MuxExoPlayer constructors that take a CustomerData arg separately, add custom-dimensions example to demo app (#128)
+
+## v2.4.11
+ - Run automated tests on real devices (#121)
+ - Fix MIME-type detection for HLS & DASH stream by allowing the server to make that determination. (#122)
+ - Upgrade MuxCore to 6.6.0, which includes:
+   - Add support for custom dimensions in view metadata
+   - Fix propagation of bandwidth metrics data by sending even when unchanged
+
 ## v2.4.10
  - Fix an issue where the application may crash while using DASH playback sources
 

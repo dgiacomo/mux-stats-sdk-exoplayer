@@ -1,12 +1,34 @@
 apply plugin: 'com.android.library'
+apply plugin: 'checkstyle'
+
+checkstyle {
+    configFile = file("${rootDir}/.checkstyle/checkstyle.xml")
+    configDirectory = file("${rootDir}/.checkstyle")
+    toolVersion '8.42'
+}
+
+task checkstyle(type: Checkstyle) {
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    // empty classpath
+    classpath = files()
+    showViolations = true
+    ignoreFailures = false
+}
+
+preBuild.dependsOn('checkstyle')
+assemble.dependsOn('lint')
+check.dependsOn('checkstyle')
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        versionCode 21
-        versionName "2.4.10"
+        versionCode 25
+        versionName "2.4.14"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -57,6 +79,12 @@ android {
         r2_13_1_ads {
             java.srcDirs = ['./src/r2_13_1/java']
         }
+        r2_14_1 {
+            java.srcDirs = ['./src/r2_14_1/java']
+        }
+        r2_14_1_ads {
+            java.srcDirs = ['./src/r2_14_1/java']
+        }
     }
 
     flavorDimensions 'api'
@@ -90,6 +118,12 @@ android {
             dimension 'api'
         }
         r2_13_1_ads {
+            dimension 'api'
+        }
+        r2_14_1 {
+            dimension 'api'
+        }
+        r2_14_1_ads {
             dimension 'api'
         }
     }
@@ -146,6 +180,12 @@ dependencies {
     r2_13_1Api 'org.checkerframework:checker-qual:2.5.2'
     r2_13_1_adsApi 'com.google.android.exoplayer:exoplayer:2.13.1'
     r2_13_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+
+    r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
+    r2_14_1Api 'org.checkerframework:checker-qual:2.5.2'
+    r2_14_1_adsApi 'com.google.android.exoplayer:exoplayer:2.14.1'
+    r2_14_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
