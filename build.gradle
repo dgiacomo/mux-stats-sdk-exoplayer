@@ -161,7 +161,7 @@ afterEvaluate {
                     def outDirTree = fileTree(dir: "${buildDir}/outputs/artifacts/", exclude: ['**/*.txt'])
                     outDirTree.visit { fileDetails ->
                         def flavorName = fileDetails.name.replaceAll("mux-", "").replaceAll(".aar", "")
-                        println "=== Publishing >>>>> ${fileDetails.name}, flavor: ${flavorName}, version: ${packageVersionName}"
+                        println "=== Publishing >>>> ${fileDetails.name}, flavor: ${flavorName}, version: ${packageVersionName}"
 
                         artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
                             classifier flavorName
